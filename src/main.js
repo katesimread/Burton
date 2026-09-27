@@ -28,6 +28,13 @@ app.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
+// Shared zoom range for both scroll/pinch (OrbitControls' own dolly) and
+// the on-screen zoom bar, so the two stay consistent with each other.
+const ZOOM_MIN_DISTANCE = 1;
+const ZOOM_MAX_DISTANCE = 15;
+controls.minDistance = ZOOM_MIN_DISTANCE;
+controls.maxDistance = ZOOM_MAX_DISTANCE;
+
 // Renders the floating number labels above hotspot markers, layered over
 // the WebGL canvas. It never intercepts mouse events (pointer-events:
 // none), so raycasting/dragging on the canvas underneath is unaffected.
@@ -566,6 +573,54 @@ function updateTilt(delta) {
   camera.lookAt(controls.target);
 }
 
+// --- On-screen zoom bar ------------------------------------------------
+// A range input that dollies the camera toward/away from the current
+// OrbitControls target — the same thing mouse-wheel/pinch zoom does.
+// The slider's own value increases towards "zoomed in" (drag it towards
+// the + end to get closer), which is the opposite sense of plain
+// camera-target distance, so the two are converted via the same flipped
+// formula in both directions.
+
+const zoomBar = document.querySelector('#zoom-bar');
+const zoomOffset = new THREE.Vector3();
+let zoomBarDragging = false;
+
+function distanceToZoomValue(distance) {
+  return ZOOM_MIN_DISTANCE + ZOOM_MAX_DISTANCE - distance;
+}
+
+function setCameraDistance(distance) {
+  zoomOffset.copy(camera.position).sub(controls.target);
+  if (zoomOffset.lengthSq() === 0) zoomOffset.set(0, 0, 1); // camera sitting exactly on target — pick an arbitrary direction
+  zoomOffset.setLength(THREE.MathUtils.clamp(distance, ZOOM_MIN_DISTANCE, ZOOM_MAX_DISTANCE));
+  camera.position.copy(controls.target).add(zoomOffset);
+}
+
+if (zoomBar) {
+  zoomBar.min = ZOOM_MIN_DISTANCE;
+  zoomBar.max = ZOOM_MAX_DISTANCE;
+  zoomBar.step = 0.01;
+
+  zoomBar.addEventListener('pointerdown', () => {
+    zoomBarDragging = true;
+  });
+  window.addEventListener('pointerup', () => {
+    zoomBarDragging = false;
+  });
+
+  zoomBar.addEventListener('input', () => {
+    setCameraDistance(distanceToZoomValue(Number(zoomBar.value)));
+  });
+}
+
+// Keeps the bar in sync with zooming done any other way (scroll wheel,
+// pinch, the isolated-view auto-frame) without fighting the user's own drag.
+function updateZoomBar() {
+  if (!zoomBar || zoomBarDragging) return;
+  const distance = camera.position.distanceTo(controls.target);
+  zoomBar.value = distanceToZoomValue(distance);
+}
+
 // Hides a marker's number label whenever something sits between the camera
 // and the marker — CSS2DObjects are plain HTML overlays and don't respect
 // the WebGL depth buffer on their own, so without this the numbers would
@@ -651,6 +706,7 @@ function animate() {
   updateMovement(delta);
   updateTilt(delta);
   controls.update();
+  updateZoomBar();
   updateMarkerBillboards();
 
   occlusionCheckTimer += delta;

@@ -113,3 +113,24 @@ canvas {
   grid-column: 2;
 }
 
+#zoom-controls {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 20px;
+  color: #fff;
+  font: 15px/1 ui-monospace, "SF Mono", Menlo, monospace;
+  z-index: 10;
+}
+
+#zoom-bar {
+  width: 160px;
+  accent-color: #ffcc00;
+}
+
