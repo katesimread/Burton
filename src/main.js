@@ -318,6 +318,7 @@ function stopHotspotAudio() {
 }
 
 let isolatedView = false;
+const closeAssetButton = document.querySelector('#close-asset');
 
 // Hides the building and every hotspot marker, drops the background to
 // black, and slowly auto-rotates the camera around the swapped-in asset
@@ -329,6 +330,7 @@ function enterIsolatedView(object) {
   controls.autoRotate = true;
   controls.autoRotateSpeed = 1.2; // slow spin
   isolatedView = true;
+  if (closeAssetButton) closeAssetButton.hidden = false;
 
   const box = new THREE.Box3().setFromObject(object);
   const size = box.getSize(new THREE.Vector3()).length();
@@ -347,6 +349,7 @@ function exitIsolatedView() {
   scene.background.set(0x1a1a1a);
   controls.autoRotate = false;
   isolatedView = false;
+  if (closeAssetButton) closeAssetButton.hidden = true;
 }
 
 // When a hotspot has more than one asset (see `extraAssetPaths`), each one
@@ -413,6 +416,10 @@ function closeHotspotAsset() {
 window.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') closeHotspotAsset();
 });
+
+if (closeAssetButton) {
+  closeAssetButton.addEventListener('click', closeHotspotAsset);
+}
 
 // Press S to download the current hotspots as a JSON file — the in-memory
 // HOTSPOTS array (and every marker you've placed/dragged) only lives in
@@ -584,60 +591,56 @@ function updateTilt(delta) {
   camera.lookAt(controls.target);
 }
 
-// --- Zoom controls (bar + buttons) -----------------------------------------
-// Both drive the exact same moveState.forward that Up/Down and +/- do (see
-// above), rather than a separate dolly-toward-a-fixed-point control — so
-// "zoom" is really just walking forward/backward, for as long as you hold
-// it, with no fixed point it converges on and stops at.
+// --- Movement joystick -------------------------------------------------
+// One draggable pad, replacing the old zoom bar/buttons: drag up/down to
+// walk forward/back (this is what "zoom" already meant — see the arrow key
+// section above), drag left/right to strafe — closing the gap where strafe
+// had no screen/mouse equivalent before. Driving the exact same
+// moveState.forward/right that the keyboard uses means this needs no
+// changes to updateMovement() at all.
 
-const zoomBar = document.querySelector('#zoom-bar');
+const moveJoystick = document.querySelector('#move-joystick');
+const moveJoystickThumb = document.querySelector('#move-joystick-thumb');
+const MOVE_JOYSTICK_RADIUS = 40; // px the thumb can travel from center before clamping
 
-if (zoomBar) {
-  zoomBar.min = -1;
-  zoomBar.max = 1;
-  zoomBar.step = 0.01;
-  zoomBar.value = 0;
+if (moveJoystick && moveJoystickThumb) {
+  let joystickPointerId = null;
 
-  // Snaps back to center and stops moving on release, the same as letting go
-  // of Up/Down — it's a rocker you hold, not a position you leave it at.
-  const stopZoomBar = () => {
-    zoomBar.value = 0;
-    moveState.forward = 0;
+  const updateFromEvent = (event) => {
+    const rect = moveJoystick.getBoundingClientRect();
+    let dx = event.clientX - (rect.left + rect.width / 2);
+    let dy = event.clientY - (rect.top + rect.height / 2);
+    const distance = Math.hypot(dx, dy);
+    if (distance > MOVE_JOYSTICK_RADIUS) {
+      dx = (dx / distance) * MOVE_JOYSTICK_RADIUS;
+      dy = (dy / distance) * MOVE_JOYSTICK_RADIUS;
+    }
+    moveJoystickThumb.style.transform = `translate(${dx}px, ${dy}px)`;
+    moveState.right = dx / MOVE_JOYSTICK_RADIUS;
+    moveState.forward = -dy / MOVE_JOYSTICK_RADIUS; // up on the pad = forward
   };
 
-  zoomBar.addEventListener('pointerdown', (event) => {
-    zoomBar.setPointerCapture(event.pointerId);
-  });
-  zoomBar.addEventListener('input', () => {
-    const value = Number(zoomBar.value);
-    moveState.forward = value > 0 ? 1 : value < 0 ? -1 : 0;
-  });
-  zoomBar.addEventListener('pointerup', stopZoomBar);
-  zoomBar.addEventListener('pointercancel', stopZoomBar);
-}
+  // Snaps back to center and stops moving on release — a rocker you hold,
+  // not a position you leave it at, same as letting go of an arrow key.
+  const stopJoystick = () => {
+    joystickPointerId = null;
+    moveJoystickThumb.style.transform = 'translate(0, 0)';
+    moveState.forward = 0;
+    moveState.right = 0;
+  };
 
-const ZOOM_BUTTONS = [
-  { id: 'zoom-in', forward: 1 },
-  { id: 'zoom-out', forward: -1 },
-];
-
-for (const { id, forward } of ZOOM_BUTTONS) {
-  const button = document.querySelector(`#${id}`);
-  if (!button) continue;
-
-  const start = (event) => {
+  moveJoystick.addEventListener('pointerdown', (event) => {
     event.preventDefault();
-    button.setPointerCapture(event.pointerId);
-    moveState.forward = forward;
-  };
-  const stop = () => {
-    moveState.forward = 0;
-  };
-
-  button.addEventListener('pointerdown', start);
-  button.addEventListener('pointerup', stop);
-  button.addEventListener('pointercancel', stop);
-  button.addEventListener('pointerleave', stop);
+    joystickPointerId = event.pointerId;
+    moveJoystick.setPointerCapture(event.pointerId);
+    updateFromEvent(event);
+  });
+  moveJoystick.addEventListener('pointermove', (event) => {
+    if (event.pointerId !== joystickPointerId) return;
+    updateFromEvent(event);
+  });
+  moveJoystick.addEventListener('pointerup', stopJoystick);
+  moveJoystick.addEventListener('pointercancel', stopJoystick);
 }
 
 // --- Idle reset -------------------------------------------------------------

@@ -55,7 +55,7 @@ canvas {
 body.loading #app,
 body.loading #logo-link,
 body.loading #tilt-controls,
-body.loading #zoom-controls {
+body.loading #move-joystick {
   display: none;
 }
 
@@ -98,7 +98,7 @@ body.loading #loading-indicator {
 }
 
 #tilt-controls button,
-#zoom-controls button {
+#close-asset {
   border: none;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.55);
@@ -112,12 +112,12 @@ body.loading #loading-indicator {
 }
 
 #tilt-controls button:hover,
-#zoom-controls button:hover {
+#close-asset:hover {
   background: rgba(0, 0, 0, 0.75);
 }
 
 #tilt-controls button:active,
-#zoom-controls button:active {
+#close-asset:active {
   background: rgba(0, 0, 0, 0.9);
 }
 
@@ -141,30 +141,45 @@ body.loading #loading-indicator {
   grid-column: 2;
 }
 
-#zoom-controls {
+/* Drag from anywhere in this pad to walk: up/down = forward/back,
+   left/right = strafe. Replaces the old zoom bar + zoom in/out buttons —
+   see the move-joystick section in main.js. */
+#move-joystick {
   position: fixed;
   left: 50%;
   bottom: 16px;
   transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  background: rgba(0, 0, 0, 0.55);
-  border-radius: 20px;
-  color: #fff;
-  font: 15px/1 ui-monospace, "SF Mono", Menlo, monospace;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  touch-action: none; /* dragging shouldn't scroll/zoom the page on touch */
   z-index: 10;
 }
 
-#zoom-controls button {
-  flex: none;
-  width: 32px;
-  height: 32px;
+#move-joystick-thumb {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  pointer-events: none; /* the base handles the drag; the thumb is purely visual */
+  transition: transform 0.08s ease-out;
 }
 
-#zoom-bar {
-  width: 160px;
-  accent-color: #ffcc00;
+#close-asset {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  z-index: 10;
+}
+
+#close-asset[hidden] {
+  display: none;
 }
 
