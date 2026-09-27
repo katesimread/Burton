@@ -31,8 +31,16 @@ controls.enableDamping = true;
 // Shared zoom range for scroll/pinch (OrbitControls' own dolly), the
 // on-screen zoom bar, and the zoom in/out buttons, so all three stay
 // consistent with each other.
-const ZOOM_MIN_DISTANCE = 0.5;
-const ZOOM_MAX_DISTANCE = 20;
+//
+// ZOOM_MIN_DISTANCE is fixed — just past the camera's near-clip plane (0.1)
+// — so zooming in can get right up against (and through thin/open parts of)
+// the building. ZOOM_MAX_DISTANCE is a placeholder here: once the building
+// loads and its real "whole building" framing distance is known,
+// configureZoomRange() (see the zoom bar section below) replaces it so that
+// default view sits right near the zoomed-out end of the bar instead of
+// eating most of the range — leaving almost the whole bar for zooming in.
+const ZOOM_MIN_DISTANCE = 0.15;
+let ZOOM_MAX_DISTANCE = 20;
 controls.minDistance = ZOOM_MIN_DISTANCE;
 controls.maxDistance = ZOOM_MAX_DISTANCE;
 
@@ -106,6 +114,7 @@ function loadBuildings() {
 
       content.add(root);
       frameCamera();
+      configureZoomRange(camera.position.distanceTo(controls.target), 0.01);
       if (loadingIndicator) loadingIndicator.hidden = true;
     },
     undefined,
@@ -585,6 +594,20 @@ function updateTilt(delta) {
 const zoomBar = document.querySelector('#zoom-bar');
 const zoomOffset = new THREE.Vector3();
 let zoomBarDragging = false;
+
+// Re-derives ZOOM_MAX_DISTANCE so a given camera-target distance lands at a
+// specific point along the 0-100% bar (0 = fully zoomed out, 1 = fully
+// zoomed in), then applies it everywhere the range is used. Called once,
+// right after the building first loads and frames itself, with
+// referencePercent small (near the zoomed-out end) so that default framed
+// view leaves almost the entire bar free for zooming in closer.
+function configureZoomRange(referenceDistance, referencePercent) {
+  // percent = (MAX - distance) / (MAX - MIN)  =>  solve for MAX:
+  ZOOM_MAX_DISTANCE =
+    (referenceDistance - referencePercent * ZOOM_MIN_DISTANCE) / (1 - referencePercent);
+  controls.maxDistance = ZOOM_MAX_DISTANCE;
+  if (zoomBar) zoomBar.max = ZOOM_MAX_DISTANCE;
+}
 
 function distanceToZoomValue(distance) {
   return ZOOM_MIN_DISTANCE + ZOOM_MAX_DISTANCE - distance;
