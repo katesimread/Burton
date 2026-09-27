@@ -72,7 +72,7 @@ body.loading #zoom-controls {
   max-height: 80vh;
   overflow-y: auto;
   padding: 28px 32px;
-  background: rgba(0, 0, 0, 0.82);
+  background: rgba(9, 33, 20, 0.88);
   border-radius: 12px;
   color: #fff;
   font: 14px/1.6 ui-monospace, "SF Mono", Menlo, monospace;
