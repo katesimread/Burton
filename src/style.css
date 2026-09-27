@@ -50,13 +50,40 @@ canvas {
   opacity: 0.8;
 }
 
+/* Nothing but the loading text is shown until the model has finished
+   loading — see finishLoading() in main.js, which removes this class. */
+body.loading #app,
+body.loading #logo-link,
+body.loading #tilt-controls,
+body.loading #zoom-controls {
+  display: none;
+}
+
 #loading-indicator {
+  display: none;
   position: fixed;
-  left: 12px;
-  top: 12px;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
   color: #fff;
-  font: 13px/1.4 ui-monospace, "SF Mono", Menlo, monospace;
+  font: 20px/1.4 ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0.05em;
   pointer-events: none;
+}
+
+body.loading #loading-indicator {
+  display: flex;
+  animation: loading-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes loading-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 #tilt-controls {

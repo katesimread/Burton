@@ -86,7 +86,12 @@ function frameCamera() {
 const BUILDINGS_TARGET_SIZE = 6; // world-space diagonal the buildings model gets scaled to
 const BUILDINGS_OFFSET_X = 0;
 
-const loadingIndicator = document.querySelector('#loading-indicator');
+// Everything (the scene, the logo, the on-screen controls) stays hidden —
+// see the `body.loading` rules in style.css — until this runs, leaving only
+// the centered, pulsing "Loading" text visible.
+function finishLoading() {
+  document.body.classList.remove('loading');
+}
 
 function loadBuildings() {
   new GLTFLoader().load(
@@ -104,12 +109,12 @@ function loadBuildings() {
 
       content.add(root);
       frameCamera();
-      if (loadingIndicator) loadingIndicator.hidden = true;
+      finishLoading();
     },
     undefined,
     (err) => {
       console.error(`Could not load ${BUILDINGS_MODEL_PATH}:`, err);
-      if (loadingIndicator) loadingIndicator.hidden = true;
+      finishLoading();
     }
   );
 }
