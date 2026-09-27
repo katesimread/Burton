@@ -72,7 +72,8 @@ canvas {
   z-index: 10;
 }
 
-#tilt-controls button {
+#tilt-controls button,
+#zoom-controls button {
   border: none;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.55);
@@ -85,11 +86,13 @@ canvas {
   -webkit-user-select: none;
 }
 
-#tilt-controls button:hover {
+#tilt-controls button:hover,
+#zoom-controls button:hover {
   background: rgba(0, 0, 0, 0.75);
 }
 
-#tilt-controls button:active {
+#tilt-controls button:active,
+#zoom-controls button:active {
   background: rgba(0, 0, 0, 0.9);
 }
 
@@ -127,6 +130,12 @@ canvas {
   color: #fff;
   font: 15px/1 ui-monospace, "SF Mono", Menlo, monospace;
   z-index: 10;
+}
+
+#zoom-controls button {
+  flex: none;
+  width: 32px;
+  height: 32px;
 }
 
 #zoom-bar {

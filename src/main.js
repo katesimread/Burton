@@ -28,10 +28,11 @@ app.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-// Shared zoom range for both scroll/pinch (OrbitControls' own dolly) and
-// the on-screen zoom bar, so the two stay consistent with each other.
-const ZOOM_MIN_DISTANCE = 1;
-const ZOOM_MAX_DISTANCE = 15;
+// Shared zoom range for scroll/pinch (OrbitControls' own dolly), the
+// on-screen zoom bar, and the zoom in/out buttons, so all three stay
+// consistent with each other.
+const ZOOM_MIN_DISTANCE = 0.5;
+const ZOOM_MAX_DISTANCE = 20;
 controls.minDistance = ZOOM_MIN_DISTANCE;
 controls.maxDistance = ZOOM_MAX_DISTANCE;
 
@@ -621,6 +622,64 @@ function updateZoomBar() {
   zoomBar.value = distanceToZoomValue(distance);
 }
 
+// --- Zoom in/out buttons + keyboard --------------------------------------
+// Dragging a slider (or the bar above) needs precise pointer control that
+// isn't always available (touch, no trackpad). These give continuous,
+// click-and-hold zoom instead — the same interaction as the tilt buttons —
+// plus +/- keyboard shortcuts so zoom works with a keyboard alone too.
+
+const ZOOM_HOLD_SPEED = 4; // world units per second while a button/key is held
+const zoomHoldState = { direction: 0 }; // +1 = zoom in, -1 = zoom out
+
+const ZOOM_BUTTONS = [
+  { id: 'zoom-in', direction: 1 },
+  { id: 'zoom-out', direction: -1 },
+];
+
+for (const { id, direction } of ZOOM_BUTTONS) {
+  const button = document.querySelector(`#${id}`);
+  if (!button) continue;
+
+  const start = (event) => {
+    event.preventDefault();
+    button.setPointerCapture(event.pointerId);
+    zoomHoldState.direction = direction;
+  };
+  const stop = () => {
+    zoomHoldState.direction = 0;
+  };
+
+  button.addEventListener('pointerdown', start);
+  button.addEventListener('pointerup', stop);
+  button.addEventListener('pointercancel', stop);
+  button.addEventListener('pointerleave', stop);
+}
+
+const ZOOM_IN_KEYS = new Set(['+', '=']);
+const ZOOM_OUT_KEYS = new Set(['-', '_']);
+
+window.addEventListener('keydown', (event) => {
+  if (ZOOM_IN_KEYS.has(event.key)) {
+    event.preventDefault();
+    zoomHoldState.direction = 1;
+  } else if (ZOOM_OUT_KEYS.has(event.key)) {
+    event.preventDefault();
+    zoomHoldState.direction = -1;
+  }
+});
+
+window.addEventListener('keyup', (event) => {
+  if (ZOOM_IN_KEYS.has(event.key) || ZOOM_OUT_KEYS.has(event.key)) {
+    zoomHoldState.direction = 0;
+  }
+});
+
+function updateZoomHold(delta) {
+  if (zoomHoldState.direction === 0) return;
+  const distance = camera.position.distanceTo(controls.target);
+  setCameraDistance(distance - zoomHoldState.direction * ZOOM_HOLD_SPEED * delta);
+}
+
 // Hides a marker's number label whenever something sits between the camera
 // and the marker — CSS2DObjects are plain HTML overlays and don't respect
 // the WebGL depth buffer on their own, so without this the numbers would
@@ -705,6 +764,7 @@ function animate() {
   const delta = clock.getDelta();
   updateMovement(delta);
   updateTilt(delta);
+  updateZoomHold(delta);
   controls.update();
   updateZoomBar();
   updateMarkerBillboards();
