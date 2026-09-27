@@ -28,21 +28,11 @@ app.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-// Shared zoom range for scroll/pinch (OrbitControls' own dolly), the
-// on-screen zoom bar, and the zoom in/out buttons, so all three stay
-// consistent with each other.
-//
-// ZOOM_MIN_DISTANCE is fixed — just past the camera's near-clip plane (0.1)
-// — so zooming in can get right up against (and through thin/open parts of)
-// the building. ZOOM_MAX_DISTANCE is a placeholder here: once the building
-// loads and its real "whole building" framing distance is known,
-// configureZoomRange() (see the zoom bar section below) replaces it so that
-// default view sits right near the zoomed-out end of the bar instead of
-// eating most of the range — leaving almost the whole bar for zooming in.
-const ZOOM_MIN_DISTANCE = 0.15;
-let ZOOM_MAX_DISTANCE = 20;
-controls.minDistance = ZOOM_MIN_DISTANCE;
-controls.maxDistance = ZOOM_MAX_DISTANCE;
+// Distance limits for scroll-wheel/pinch zoom — OrbitControls' own built-in
+// dolly. The on-screen zoom controls are a separate, walk-style movement
+// (see the arrow key / zoom section below) and aren't bound by these.
+controls.minDistance = 0.15; // just past the camera's near-clip plane (0.1)
+controls.maxDistance = 50;
 
 // Renders the floating number labels above hotspot markers, layered over
 // the WebGL canvas. It never intercepts mouse events (pointer-events:
@@ -114,7 +104,6 @@ function loadBuildings() {
 
       content.add(root);
       frameCamera();
-      configureZoomRange(camera.position.distanceTo(controls.target), 0.01);
       if (loadingIndicator) loadingIndicator.hidden = true;
     },
     undefined,
@@ -476,27 +465,34 @@ renderer.domElement.addEventListener('click', (event) => {
   }
 });
 
-// --- Arrow key navigation ------------------------------------------------
+// --- Arrow key / zoom navigation -------------------------------------------
 // Up/Down walk forward/backward, Left/Right strafe sideways. Mouse drag
 // (OrbitControls) still rotates the view around the current target.
+//
+// "Zoom" (the on-screen bar/buttons, and +/- here) is just this same
+// forward/backward walk, not a separate dolly-toward-a-fixed-point control —
+// it drives this exact moveState.forward, so it moves you continuously
+// through the scene for as long as it's held, the same as Up/Down.
 
 const MOVE_SPEED = 1.5; // world units per second
 
 const moveState = { forward: 0, right: 0 };
-const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
+const FORWARD_KEYS = new Set(['ArrowUp', '+', '=']); // '=' is '+' without needing Shift on most keyboards
+const BACKWARD_KEYS = new Set(['ArrowDown', '-', '_']);
+const MOVE_KEYS = new Set([...FORWARD_KEYS, ...BACKWARD_KEYS, 'ArrowLeft', 'ArrowRight']);
 
 window.addEventListener('keydown', (event) => {
-  if (!ARROW_KEYS.has(event.key)) return;
+  if (!MOVE_KEYS.has(event.key)) return;
   event.preventDefault();
-  if (event.key === 'ArrowUp') moveState.forward = 1;
-  if (event.key === 'ArrowDown') moveState.forward = -1;
+  if (FORWARD_KEYS.has(event.key)) moveState.forward = 1;
+  if (BACKWARD_KEYS.has(event.key)) moveState.forward = -1;
   if (event.key === 'ArrowLeft') moveState.right = -1;
   if (event.key === 'ArrowRight') moveState.right = 1;
 });
 
 window.addEventListener('keyup', (event) => {
-  if (!ARROW_KEYS.has(event.key)) return;
-  if (event.key === 'ArrowUp' || event.key === 'ArrowDown') moveState.forward = 0;
+  if (!MOVE_KEYS.has(event.key)) return;
+  if (FORWARD_KEYS.has(event.key) || BACKWARD_KEYS.has(event.key)) moveState.forward = 0;
   if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') moveState.right = 0;
 });
 
@@ -583,124 +579,60 @@ function updateTilt(delta) {
   camera.lookAt(controls.target);
 }
 
-// --- On-screen zoom bar ------------------------------------------------
-// A range input that dollies the camera toward/away from the current
-// OrbitControls target — the same thing mouse-wheel/pinch zoom does.
-// The slider's own value increases towards "zoomed in" (drag it towards
-// the + end to get closer), which is the opposite sense of plain
-// camera-target distance, so the two are converted via the same flipped
-// formula in both directions.
+// --- Zoom controls (bar + buttons) -----------------------------------------
+// Both drive the exact same moveState.forward that Up/Down and +/- do (see
+// above), rather than a separate dolly-toward-a-fixed-point control — so
+// "zoom" is really just walking forward/backward, for as long as you hold
+// it, with no fixed point it converges on and stops at.
 
 const zoomBar = document.querySelector('#zoom-bar');
-const zoomOffset = new THREE.Vector3();
-let zoomBarDragging = false;
-
-// Re-derives ZOOM_MAX_DISTANCE so a given camera-target distance lands at a
-// specific point along the 0-100% bar (0 = fully zoomed out, 1 = fully
-// zoomed in), then applies it everywhere the range is used. Called once,
-// right after the building first loads and frames itself, with
-// referencePercent small (near the zoomed-out end) so that default framed
-// view leaves almost the entire bar free for zooming in closer.
-function configureZoomRange(referenceDistance, referencePercent) {
-  // percent = (MAX - distance) / (MAX - MIN)  =>  solve for MAX:
-  ZOOM_MAX_DISTANCE =
-    (referenceDistance - referencePercent * ZOOM_MIN_DISTANCE) / (1 - referencePercent);
-  controls.maxDistance = ZOOM_MAX_DISTANCE;
-  if (zoomBar) zoomBar.max = ZOOM_MAX_DISTANCE;
-}
-
-function distanceToZoomValue(distance) {
-  return ZOOM_MIN_DISTANCE + ZOOM_MAX_DISTANCE - distance;
-}
-
-function setCameraDistance(distance) {
-  zoomOffset.copy(camera.position).sub(controls.target);
-  if (zoomOffset.lengthSq() === 0) zoomOffset.set(0, 0, 1); // camera sitting exactly on target — pick an arbitrary direction
-  zoomOffset.setLength(THREE.MathUtils.clamp(distance, ZOOM_MIN_DISTANCE, ZOOM_MAX_DISTANCE));
-  camera.position.copy(controls.target).add(zoomOffset);
-}
 
 if (zoomBar) {
-  zoomBar.min = ZOOM_MIN_DISTANCE;
-  zoomBar.max = ZOOM_MAX_DISTANCE;
+  zoomBar.min = -1;
+  zoomBar.max = 1;
   zoomBar.step = 0.01;
+  zoomBar.value = 0;
 
-  zoomBar.addEventListener('pointerdown', () => {
-    zoomBarDragging = true;
-  });
-  window.addEventListener('pointerup', () => {
-    zoomBarDragging = false;
-  });
+  // Snaps back to center and stops moving on release, the same as letting go
+  // of Up/Down — it's a rocker you hold, not a position you leave it at.
+  const stopZoomBar = () => {
+    zoomBar.value = 0;
+    moveState.forward = 0;
+  };
 
+  zoomBar.addEventListener('pointerdown', (event) => {
+    zoomBar.setPointerCapture(event.pointerId);
+  });
   zoomBar.addEventListener('input', () => {
-    setCameraDistance(distanceToZoomValue(Number(zoomBar.value)));
+    const value = Number(zoomBar.value);
+    moveState.forward = value > 0 ? 1 : value < 0 ? -1 : 0;
   });
+  zoomBar.addEventListener('pointerup', stopZoomBar);
+  zoomBar.addEventListener('pointercancel', stopZoomBar);
 }
-
-// Keeps the bar in sync with zooming done any other way (scroll wheel,
-// pinch, the isolated-view auto-frame) without fighting the user's own drag.
-function updateZoomBar() {
-  if (!zoomBar || zoomBarDragging) return;
-  const distance = camera.position.distanceTo(controls.target);
-  zoomBar.value = distanceToZoomValue(distance);
-}
-
-// --- Zoom in/out buttons + keyboard --------------------------------------
-// Dragging a slider (or the bar above) needs precise pointer control that
-// isn't always available (touch, no trackpad). These give continuous,
-// click-and-hold zoom instead — the same interaction as the tilt buttons —
-// plus +/- keyboard shortcuts so zoom works with a keyboard alone too.
-
-const ZOOM_HOLD_SPEED = 4; // world units per second while a button/key is held
-const zoomHoldState = { direction: 0 }; // +1 = zoom in, -1 = zoom out
 
 const ZOOM_BUTTONS = [
-  { id: 'zoom-in', direction: 1 },
-  { id: 'zoom-out', direction: -1 },
+  { id: 'zoom-in', forward: 1 },
+  { id: 'zoom-out', forward: -1 },
 ];
 
-for (const { id, direction } of ZOOM_BUTTONS) {
+for (const { id, forward } of ZOOM_BUTTONS) {
   const button = document.querySelector(`#${id}`);
   if (!button) continue;
 
   const start = (event) => {
     event.preventDefault();
     button.setPointerCapture(event.pointerId);
-    zoomHoldState.direction = direction;
+    moveState.forward = forward;
   };
   const stop = () => {
-    zoomHoldState.direction = 0;
+    moveState.forward = 0;
   };
 
   button.addEventListener('pointerdown', start);
   button.addEventListener('pointerup', stop);
   button.addEventListener('pointercancel', stop);
   button.addEventListener('pointerleave', stop);
-}
-
-const ZOOM_IN_KEYS = new Set(['+', '=']);
-const ZOOM_OUT_KEYS = new Set(['-', '_']);
-
-window.addEventListener('keydown', (event) => {
-  if (ZOOM_IN_KEYS.has(event.key)) {
-    event.preventDefault();
-    zoomHoldState.direction = 1;
-  } else if (ZOOM_OUT_KEYS.has(event.key)) {
-    event.preventDefault();
-    zoomHoldState.direction = -1;
-  }
-});
-
-window.addEventListener('keyup', (event) => {
-  if (ZOOM_IN_KEYS.has(event.key) || ZOOM_OUT_KEYS.has(event.key)) {
-    zoomHoldState.direction = 0;
-  }
-});
-
-function updateZoomHold(delta) {
-  if (zoomHoldState.direction === 0) return;
-  const distance = camera.position.distanceTo(controls.target);
-  setCameraDistance(distance - zoomHoldState.direction * ZOOM_HOLD_SPEED * delta);
 }
 
 // Hides a marker's number label whenever something sits between the camera
@@ -787,9 +719,7 @@ function animate() {
   const delta = clock.getDelta();
   updateMovement(delta);
   updateTilt(delta);
-  updateZoomHold(delta);
   controls.update();
-  updateZoomBar();
   updateMarkerBillboards();
 
   occlusionCheckTimer += delta;
