@@ -530,7 +530,7 @@ function updateMovement(delta) {
 // OrbitControls target, exactly like dragging the mouse would — held down
 // (mouse or touch), the view keeps tilting until released.
 
-const TILT_SPEED = 0.6; // radians per second
+const TILT_SPEED = 0.3; // radians per second
 const TILT_POLAR_EPSILON = 0.001; // keep just short of the poles, where lookAt() gets unstable
 
 const tiltState = { yaw: 0, pitch: 0 };
