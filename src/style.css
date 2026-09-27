@@ -73,7 +73,6 @@ canvas {
 }
 
 #tilt-controls button {
-  grid-column: 2;
   border: none;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.55);
@@ -96,6 +95,7 @@ canvas {
 
 #tilt-up {
   grid-row: 1;
+  grid-column: 2;
 }
 
 #tilt-left {
@@ -110,5 +110,6 @@ canvas {
 
 #tilt-down {
   grid-row: 3;
+  grid-column: 2;
 }
 
