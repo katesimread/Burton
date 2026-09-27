@@ -61,3 +61,54 @@ canvas {
   pointer-events: none;
 }
 
+#tilt-controls {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
+  grid-template-rows: repeat(3, 44px);
+  gap: 4px;
+  z-index: 10;
+}
+
+#tilt-controls button {
+  grid-column: 2;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: none; /* holding a button shouldn't scroll/zoom the page on touch */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#tilt-controls button:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+#tilt-controls button:active {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+#tilt-up {
+  grid-row: 1;
+}
+
+#tilt-left {
+  grid-row: 2;
+  grid-column: 1;
+}
+
+#tilt-right {
+  grid-row: 2;
+  grid-column: 3;
+}
+
+#tilt-down {
+  grid-row: 3;
+}
+

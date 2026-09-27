@@ -507,6 +507,65 @@ function updateMovement(delta) {
   controls.target.add(moveOffset);
 }
 
+// --- On-screen tilt buttons ------------------------------------------------
+// Up/Down/Left/Right buttons that orbit the camera around the current
+// OrbitControls target, exactly like dragging the mouse would — held down
+// (mouse or touch), the view keeps tilting until released.
+
+const TILT_SPEED = 1.2; // radians per second
+const TILT_POLAR_EPSILON = 0.001; // keep just short of the poles, where lookAt() gets unstable
+
+const tiltState = { yaw: 0, pitch: 0 };
+const tiltOffset = new THREE.Vector3();
+const tiltSpherical = new THREE.Spherical();
+
+const TILT_BUTTONS = [
+  { id: 'tilt-up', pitch: 1, yaw: 0 },
+  { id: 'tilt-down', pitch: -1, yaw: 0 },
+  { id: 'tilt-left', pitch: 0, yaw: -1 },
+  { id: 'tilt-right', pitch: 0, yaw: 1 },
+];
+
+for (const { id, pitch, yaw } of TILT_BUTTONS) {
+  const button = document.querySelector(`#${id}`);
+  if (!button) continue;
+
+  const start = (event) => {
+    event.preventDefault();
+    button.setPointerCapture(event.pointerId);
+    tiltState.pitch = pitch;
+    tiltState.yaw = yaw;
+  };
+  const stop = () => {
+    tiltState.pitch = 0;
+    tiltState.yaw = 0;
+  };
+
+  button.addEventListener('pointerdown', start);
+  button.addEventListener('pointerup', stop);
+  button.addEventListener('pointercancel', stop);
+  button.addEventListener('pointerleave', stop);
+}
+
+function updateTilt(delta) {
+  if (isolatedView) return; // camera is auto-rotating around the isolated asset instead
+  if (tiltState.yaw === 0 && tiltState.pitch === 0) return;
+
+  tiltOffset.copy(camera.position).sub(controls.target);
+  tiltSpherical.setFromVector3(tiltOffset);
+  tiltSpherical.theta -= tiltState.yaw * TILT_SPEED * delta;
+  tiltSpherical.phi -= tiltState.pitch * TILT_SPEED * delta;
+  tiltSpherical.phi = THREE.MathUtils.clamp(
+    tiltSpherical.phi,
+    TILT_POLAR_EPSILON,
+    Math.PI - TILT_POLAR_EPSILON
+  );
+
+  tiltOffset.setFromSpherical(tiltSpherical);
+  camera.position.copy(controls.target).add(tiltOffset);
+  camera.lookAt(controls.target);
+}
+
 // Hides a marker's number label whenever something sits between the camera
 // and the marker — CSS2DObjects are plain HTML overlays and don't respect
 // the WebGL depth buffer on their own, so without this the numbers would
@@ -590,6 +649,7 @@ function animate() {
   requestAnimationFrame(animate);
   const delta = clock.getDelta();
   updateMovement(delta);
+  updateTilt(delta);
   controls.update();
   updateMarkerBillboards();
 
