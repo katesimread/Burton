@@ -10,7 +10,7 @@ const BUILDINGS_MODEL_PATH = '/assets/buildings_connected_highRes.glb';
 const app = document.querySelector('#app');
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x001f3f);
+scene.background = new THREE.Color(0x1a1a1a);
 
 const camera = new THREE.PerspectiveCamera(
   45,
@@ -333,7 +333,7 @@ function enterIsolatedView(object) {
 function exitIsolatedView() {
   content.visible = true;
   hotspotMarkers.visible = true;
-  scene.background.set(0x001f3f);
+  scene.background.set(0x1a1a1a);
   controls.autoRotate = false;
   isolatedView = false;
 }
