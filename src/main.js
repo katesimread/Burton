@@ -640,6 +640,44 @@ for (const { id, forward } of ZOOM_BUTTONS) {
   button.addEventListener('pointerleave', stop);
 }
 
+// --- Idle reset -------------------------------------------------------------
+// A minute with no interaction (mouse, touch, wheel, or keyboard) puts the
+// view back to how it started: closes any open hotspot asset and re-frames
+// the whole building, so an unattended session doesn't stay stuck wherever
+// the last visitor left it.
+
+const IDLE_RESET_SECONDS = 60;
+let lastInteractionTime = performance.now();
+let idleResetDone = false;
+
+function markInteraction() {
+  lastInteractionTime = performance.now();
+  idleResetDone = false;
+}
+
+for (const type of ['pointerdown', 'pointermove', 'wheel', 'keydown', 'touchstart']) {
+  window.addEventListener(type, markInteraction, { passive: true });
+}
+
+function resetToDefaultState() {
+  if (activeAsset.children.length > 0) {
+    closeHotspotAsset(); // clears the isolated asset, stops its audio, re-frames the building
+  } else {
+    frameCamera();
+  }
+  moveState.forward = 0;
+  moveState.right = 0;
+  tiltState.yaw = 0;
+  tiltState.pitch = 0;
+}
+
+function updateIdleReset() {
+  if (idleResetDone) return;
+  if ((performance.now() - lastInteractionTime) / 1000 < IDLE_RESET_SECONDS) return;
+  idleResetDone = true;
+  resetToDefaultState();
+}
+
 // Hides a marker's number label whenever something sits between the camera
 // and the marker — CSS2DObjects are plain HTML overlays and don't respect
 // the WebGL depth buffer on their own, so without this the numbers would
@@ -725,6 +763,7 @@ function animate() {
   updateMovement(delta);
   updateTilt(delta);
   controls.update();
+  updateIdleReset();
   updateMarkerBillboards();
 
   occlusionCheckTimer += delta;
