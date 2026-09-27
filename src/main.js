@@ -121,15 +121,11 @@ window.addEventListener('resize', () => {
 // --- Clickable hotspots ---------------------------------------------------
 // Each hotspot is a small marker placed in the scene. Clicking one swaps in
 // a different 3D asset, framed by the camera. Fill in `assetPath` (and
-// nudge `position`) for each entry once you have your assets. To find good
-// coordinates: run the app, hold Shift and click anywhere on the building —
-// the point under the cursor gets logged to the browser console as a
-// ready-to-paste `new THREE.Vector3(...)`.
+// `position`) for each entry by hand.
 
-// Positions placed via shift+click and saved through the S-key export
-// (see hotspots.json). `audioPath` is optional — when set, that track
-// plays (looping) as soon as the hotspot's asset appears, and stops when
-// you close it.
+// Loaded from hotspots.json and saved back out through the S-key export.
+// `audioPath` is optional — when set, that track plays (looping) as soon as
+// the hotspot's asset appears, and stops when you close it.
 const HOTSPOTS = [
   {
     id: 'hotspot-1',
@@ -168,7 +164,7 @@ const hud = document.querySelector('#hotspot-hud');
 function showHudMessage(text) {
   if (hud) hud.textContent = text;
 }
-showHudMessage('Shift+click the building to drop a hotspot marker. Click a marker to open its asset, or Alt+click to delete it.');
+showHudMessage('Click a marker to open its asset, or Alt+click to delete it.');
 
 const HOTSPOT_MARKER_SIZE = 0.0225; // 1/4 of 0.09
 
@@ -423,7 +419,7 @@ function closeHotspotAsset() {
   exitIsolatedView();
   stopHotspotAudio();
   frameCamera();
-  showHudMessage('Shift+click the building to drop a hotspot marker. Click a marker to open its asset, or Alt+click to delete it.');
+  showHudMessage('Click a marker to open its asset, or Alt+click to delete it.');
 }
 
 window.addEventListener('keydown', (event) => {
@@ -486,25 +482,6 @@ renderer.domElement.addEventListener('click', (event) => {
       removeHotspotMarker(hotspotHit.object);
     } else {
       showHotspotAsset(hotspotHit.object.userData.hotspot);
-    }
-    return;
-  }
-
-  if (event.shiftKey) {
-    const buildingHit = raycaster.intersectObject(content, true)[0];
-    if (buildingHit) {
-      const p = buildingHit.point.clone();
-      const hotspot = {
-        id: `hotspot-${HOTSPOTS.length + 1}`,
-        position: p,
-        assetPath: '/assets/your-asset.glb', // TODO: point this at your asset
-      };
-      HOTSPOTS.push(hotspot);
-      addHotspotMarker(hotspot);
-
-      const entry = `{ id: '${hotspot.id}', position: new THREE.Vector3(${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)}), assetPath: '/assets/your-asset.glb' },`;
-      showHudMessage(`Placed ${hotspot.id}. Paste into HOTSPOTS once happy:\n${entry}`);
-      console.log(entry);
     }
   }
 });
