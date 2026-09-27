@@ -522,8 +522,8 @@ const tiltSpherical = new THREE.Spherical();
 const TILT_BUTTONS = [
   { id: 'tilt-up', pitch: 1, yaw: 0 },
   { id: 'tilt-down', pitch: -1, yaw: 0 },
-  { id: 'tilt-left', pitch: 0, yaw: -1 },
-  { id: 'tilt-right', pitch: 0, yaw: 1 },
+  { id: 'tilt-left', pitch: 0, yaw: 1 },
+  { id: 'tilt-right', pitch: 0, yaw: -1 },
 ];
 
 for (const { id, pitch, yaw } of TILT_BUTTONS) {
