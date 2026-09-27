@@ -35,21 +35,19 @@ canvas {
   left: 50%;
   transform: translateX(-50%);
   display: block;
-  padding: 10px 18px;
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 8px;
   z-index: 10;
-  transition: background 0.15s ease;
-}
-
-#logo-link:hover {
-  background: #fff;
 }
 
 #logo {
   display: block;
   height: 48px;
   width: auto;
+  filter: invert(1); /* artwork is solid black on transparent — invert to white so it reads on the dark background without a backing plate */
+  transition: opacity 0.15s ease;
+}
+
+#logo-link:hover #logo {
+  opacity: 0.8;
 }
 
 #loading-indicator {
