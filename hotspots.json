@@ -1,0 +1,33 @@
+[
+  {
+    "id": "hotspot-1",
+    "position": { "x": -0.01, "y": 0.10, "z": 0.73 },
+    "assetPath": "/assets/painting_highRes.glb",
+    "audioPath": "/assets/Audio/weCannotResist.mp3"
+  },
+  {
+    "id": "hotspot-2",
+    "position": { "x": -0.58, "y": -0.54, "z": 0.27 },
+    "assetPath": "/assets/saelia_highRes.glb",
+    "audioPath": "/assets/Audio/uncatena.mp3"
+  },
+  {
+    "id": "hotspot-3",
+    "position": { "x": 1.36, "y": -0.50, "z": -1.15 },
+    "assetPath": "/assets/trees_highRes.glb",
+    "audioPath": "/assets/Audio/vampireEmpire.mp3"
+  },
+  {
+    "id": "hotspot-4",
+    "position": { "x": 1.25, "y": -0.51, "z": 0.55 },
+    "assetPath": "/assets/bugHouse_highRes.glb",
+    "audioPath": "/assets/Audio/sideboob.mp3"
+  },
+  {
+    "id": "hotspot-5",
+    "position": { "x": -0.78, "y": 0.12, "z": -2.00 },
+    "assetPath": "/assets/pots_highRes.glb",
+    "extraAssetPaths": ["/assets/kiln_highRes.glb"],
+    "audioPath": "/assets/Audio/wakeMeUpToDrive.mp3"
+  }
+]
