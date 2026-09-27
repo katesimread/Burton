@@ -56,7 +56,8 @@ body.loading #app,
 body.loading #logo-link,
 body.loading #info-panel,
 body.loading #tilt-controls,
-body.loading #zoom-controls {
+body.loading #zoom-controls,
+body.loading #info-button {
   display: none;
 }
 
@@ -140,7 +141,8 @@ body.loading #loading-indicator {
 
 #tilt-controls button,
 #zoom-controls button,
-#info-panel-close {
+#info-panel-close,
+#info-button {
   border: none;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.55);
@@ -155,14 +157,26 @@ body.loading #loading-indicator {
 
 #tilt-controls button:hover,
 #zoom-controls button:hover,
-#info-panel-close:hover {
+#info-panel-close:hover,
+#info-button:hover {
   background: rgba(0, 0, 0, 0.75);
 }
 
 #tilt-controls button:active,
 #zoom-controls button:active,
-#info-panel-close:active {
+#info-panel-close:active,
+#info-button:active {
   background: rgba(0, 0, 0, 0.9);
+}
+
+#info-button {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  z-index: 10;
 }
 
 #tilt-up {

@@ -415,15 +415,21 @@ window.addEventListener('keydown', (event) => {
 });
 
 // Shown once on load (see body.loading in style.css); closed via the X or
-// Escape and stays closed for the rest of the session.
+// Escape, and reopened any time via the (i) button bottom-left.
 const infoPanel = document.querySelector('#info-panel');
 const infoPanelClose = document.querySelector('#info-panel-close');
+const infoButton = document.querySelector('#info-button');
 
 function closeInfoPanel() {
   if (infoPanel) infoPanel.hidden = true;
 }
 
+function openInfoPanel() {
+  if (infoPanel) infoPanel.hidden = false;
+}
+
 if (infoPanelClose) infoPanelClose.addEventListener('click', closeInfoPanel);
+if (infoButton) infoButton.addEventListener('click', openInfoPanel);
 window.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') closeInfoPanel();
 });
