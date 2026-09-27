@@ -164,7 +164,7 @@ const hud = document.querySelector('#hotspot-hud');
 function showHudMessage(text) {
   if (hud) hud.textContent = text;
 }
-showHudMessage('Click a marker to open its asset, or Alt+click to delete it.');
+showHudMessage('Click a marker to open its asset.');
 
 const HOTSPOT_MARKER_SIZE = 0.0225; // 1/4 of 0.09
 
@@ -233,29 +233,6 @@ function addHotspotMarker(hotspot) {
   label.position.set(0, HOTSPOT_MARKER_SIZE * 4, 0);
   marker.add(label);
   marker.userData.label = label;
-}
-
-function removeHotspotMarker(marker) {
-  const hotspot = marker.userData.hotspot;
-  const label = marker.userData.label;
-
-  // CSS2DRenderer never removes an object's DOM element on its own when
-  // the object leaves the scene graph — do it explicitly or the number
-  // badge is left floating on screen forever.
-  if (label?.element?.parentNode) {
-    label.element.parentNode.removeChild(label.element);
-  }
-
-  hotspotMarkers.remove(marker);
-  marker.geometry.dispose(); // each marker has its own geometry; the material is shared, so leave that alone
-
-  const markerIndex = hotspotMarkerList.indexOf(marker);
-  if (markerIndex !== -1) hotspotMarkerList.splice(markerIndex, 1);
-
-  const hotspotIndex = HOTSPOTS.indexOf(hotspot);
-  if (hotspotIndex !== -1) HOTSPOTS.splice(hotspotIndex, 1);
-
-  showHudMessage(`Deleted ${hotspot.id}. Press S to save the updated list.`);
 }
 
 function updateMarkerBillboards() {
@@ -419,7 +396,7 @@ function closeHotspotAsset() {
   exitIsolatedView();
   stopHotspotAudio();
   frameCamera();
-  showHudMessage('Click a marker to open its asset, or Alt+click to delete it.');
+  showHudMessage('Click a marker to open its asset.');
 }
 
 window.addEventListener('keydown', (event) => {
@@ -474,15 +451,11 @@ renderer.domElement.addEventListener('click', (event) => {
   const hotspotHit = raycaster.intersectObject(hotspotMarkers, true)[0];
   if (window.__debugClick) {
     console.log(
-      `click at (${event.clientX},${event.clientY}) altKey=${event.altKey} hit=${hotspotHit ? hotspotHit.object.userData.hotspot.id : 'none'}`
+      `click at (${event.clientX},${event.clientY}) hit=${hotspotHit ? hotspotHit.object.userData.hotspot.id : 'none'}`
     );
   }
   if (hotspotHit) {
-    if (event.altKey) {
-      removeHotspotMarker(hotspotHit.object);
-    } else {
-      showHotspotAsset(hotspotHit.object.userData.hotspot);
-    }
+    showHotspotAsset(hotspotHit.object.userData.hotspot);
   }
 });
 
