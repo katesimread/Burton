@@ -54,9 +54,50 @@ canvas {
    loading — see finishLoading() in main.js, which removes this class. */
 body.loading #app,
 body.loading #logo-link,
+body.loading #info-panel,
 body.loading #tilt-controls,
 body.loading #zoom-controls {
   display: none;
+}
+
+/* Translucent so the 3D scene stays visible behind it — not a full-screen
+   modal backdrop, so the rest of the page (and the scene) stays usable
+   while this is open. Shown once on load; closed via the X or Escape. */
+#info-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(90vw, 480px);
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 28px 32px;
+  background: rgba(0, 0, 0, 0.82);
+  border-radius: 12px;
+  color: #fff;
+  font: 14px/1.6 ui-monospace, "SF Mono", Menlo, monospace;
+  z-index: 20;
+}
+
+#info-panel[hidden] {
+  display: none;
+}
+
+#info-panel p {
+  margin: 0 0 1em;
+}
+
+#info-panel p:last-child {
+  margin-bottom: 0;
+}
+
+#info-panel-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
 }
 
 #loading-indicator {
@@ -98,7 +139,8 @@ body.loading #loading-indicator {
 }
 
 #tilt-controls button,
-#zoom-controls button {
+#zoom-controls button,
+#info-panel-close {
   border: none;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.55);
@@ -112,12 +154,14 @@ body.loading #loading-indicator {
 }
 
 #tilt-controls button:hover,
-#zoom-controls button:hover {
+#zoom-controls button:hover,
+#info-panel-close:hover {
   background: rgba(0, 0, 0, 0.75);
 }
 
 #tilt-controls button:active,
-#zoom-controls button:active {
+#zoom-controls button:active,
+#info-panel-close:active {
   background: rgba(0, 0, 0, 0.9);
 }
 

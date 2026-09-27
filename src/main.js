@@ -414,6 +414,20 @@ window.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') closeHotspotAsset();
 });
 
+// Shown once on load (see body.loading in style.css); closed via the X or
+// Escape and stays closed for the rest of the session.
+const infoPanel = document.querySelector('#info-panel');
+const infoPanelClose = document.querySelector('#info-panel-close');
+
+function closeInfoPanel() {
+  if (infoPanel) infoPanel.hidden = true;
+}
+
+if (infoPanelClose) infoPanelClose.addEventListener('click', closeInfoPanel);
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') closeInfoPanel();
+});
+
 // Press S to download the current hotspots as a JSON file — the in-memory
 // HOTSPOTS array (and every marker you've placed/dragged) only lives in
 // this browser tab and is lost on refresh, so this is how you get the
