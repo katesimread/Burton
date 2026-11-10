@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import './style.css';
 
-const BUILDINGS_MODEL_PATH = '/assets/buildings_connected_highRes.glb';
+const BUILDINGS_MODEL_PATH = 'assets/buildings_connected_highRes.glb';
 
 const app = document.querySelector('#app');
 
@@ -94,7 +95,7 @@ function finishLoading() {
 }
 
 function loadBuildings() {
-  new GLTFLoader().load(
+  new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).load(
     BUILDINGS_MODEL_PATH,
     (gltf) => {
       const root = gltf.scene;
@@ -123,7 +124,7 @@ loadBuildings();
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+  applyViewShift(); // also calls updateProjectionMatrix()
   renderer.setSize(window.innerWidth, window.innerHeight);
   labelRenderer.setSize(window.innerWidth, window.innerHeight);
   depthTarget.setSize(window.innerWidth, window.innerHeight);
@@ -141,33 +142,62 @@ const HOTSPOTS = [
   {
     id: 'hotspot-1',
     position: new THREE.Vector3(-0.01, 0.10, 0.73),
-    assetPath: '/assets/painting_highRes.glb',
-    audioPath: '/assets/Audio/weCannotResist.mp3',
+    assetPath: 'assets/painting_highRes.glb',
+    audioPath: 'assets/Audio/estuary.m4a',
+    title: "Estuary PUT PAINTING NAME",
+    text: [
+      "The River Torridge runs through Bideford, starting in Huddisford and entering the sea at Bideford Bay. Rivers are important in addressing the climate crisis; they regulate the carbon cycle, as decaying plants are transported by the river flow into the sea, where they sink to the bottom, therefore disconnecting the carbon stored in them from the atmosphere. This is called carbon sequestration.",
+      "They also have a cooling effect in urban landscapes as the water absorbs heat from the air, and they create wind corridors, which increases air circulation. Many organisms that live in rivers are key to balancing freshwater ecosystems, allowing them to continue to act as carbon sinks.",
+      "The river Torridge is intrinsically linked to Burton’s identity and in telling of the story of trade and commerce in the local area. You can learn lots about the history of Bideford in the Museum, and how it’s tied to the river.",
+    ],
   },
   {
     id: 'hotspot-2',
     position: new THREE.Vector3(-0.58, -0.54, 0.27),
-    assetPath: '/assets/saelia_highRes.glb',
-    audioPath: '/assets/Audio/uncatena.mp3',
+    assetPath: 'assets/saelia_highRes.glb',
+    audioPath: 'assets/Audio/saelia.m4a',
+    title: "Artwork",
+    text: [
+      "The Burton at Bideford is committed to platforming artists whose work investigates the human connection to the natural world. This is one of Saelia Aparicio’s pieces, from the show A Joyful Parasite. The exhibition takes inspiration from parasitic creatures, but instead of showing them as malignant, reimagines them as symbols through which we can think about co-existence and resilience.",
+    ],
   },
   {
     id: 'hotspot-3',
     position: new THREE.Vector3(1.36, -0.50, -1.15),
-    assetPath: '/assets/trees_highRes.glb',
-    audioPath: '/assets/Audio/vampireEmpire.mp3',
+    assetPath: 'assets/trees_highRes.glb',
+    audioPath: 'assets/Audio/ginko.m4a',
+    title: "Ginko Tree",
+    text: [
+      "In 2024, two Tree Care Specialists independently surveyed the Ginkgo biloba following concerns about the spread of disease within the tree and its proximity to and potential to undermine the building’s foundations. Due to the tree having low arboricultural and aesthetic value due to its disease and growth restrictions, removal of the tree was recommended.",
+      "The Burton was adamant that the felled tree was offered a second life, and that the individual logs were offered to local artists, sculptors and woodturners to create a legacy for the tree through the creation of items that could be used or displayed, vases and bowls and birdboxes to support the local birdlife.",
+      "Mark Beckett, known as The Gentleman Woodturner, collected some of the Ginkgo wood and made this beautiful pot, that he gifted to The Burton as a token to remember the tree by. A new Ginkgo tree, donated by local resident Annette Maddison, was planted with the help of the Victoria Park estates team on 3 March 2026, World Wildlife Day 2026. While only small now, one day it will grow and could reach a height of 20-35 meters tall!",
+    ],
   },
   {
     id: 'hotspot-4',
     position: new THREE.Vector3(1.25, -0.51, 0.55),
-    assetPath: '/assets/bugHouse_highRes.glb',
-    audioPath: '/assets/Audio/sideboob.mp3',
+    assetPath: 'assets/bugHouse_highRes.glb',
+    audioPath: 'assets/Audio/bugHotel.m4a',
+    // Optional: a title and paragraphs shown in a panel on the right while
+    // this hotspot's asset is open (the scan shifts left to make room).
+    title: 'The Bug Hotel',
+    text: [
+      "The bug hotel is a project created by Crafty Kids, a free drop-in family art activity session that runs every Tuesday at The Burton at Bideford. The aim is to involve the pre-school aged children in creating an ecological habitat using recycled collected organic and natural materials where insects can live and thrive.",
+      "The bug hotel has wood and bricks with drilled holes as well as hollow plant stems which are ideal for solitary bees like mason and leaf cutter bees to lay their eggs in; scrunchy card which attracts beetles and spiders; pinecones and stick bundles where ladybirds can lay over winter; card and wood that break downs over time attracting decomposers like wood lice.",
+      "These insects are important in their ecological roles as pollinators, decomposers and in providing a sustainable food chain for larger insects, birds and small mammals that live in the wider Victoria Park.",
+    ],
   },
   {
     id: 'hotspot-5',
     position: new THREE.Vector3(-0.78, 0.12, -2.00),
-    assetPath: '/assets/pots_highRes.glb',
-    extraAssetPaths: ['/assets/kiln_highRes.glb'],
-    audioPath: '/assets/Audio/wakeMeUpToDrive.mp3',
+    assetPath: 'assets/pots_highRes.glb',
+    extraAssetPaths: ['assets/kiln_highRes.glb'],
+    audioPath: 'assets/Audio/kiln.m4a',
+    title: "Wood Fired Bottle Kiln",
+    text: [
+      "The Burton at Bideford wood fired bottle kiln is a significant structure that connects the gallery’s permanent ceramic collection with the wider historical ceramic trade in Bideford. Wood fired kilns offer a more sustainable way of firing pottery than modern kilns that rely on electricity however, as they take longer to reach temperature and for that temperature to be stable, they can produce less predictable results.",
+      "Some of the pots seen in the ceramics gallery have been fired in this kiln, including these works by Nick Chapman and Svend Bayer. Sometimes, the Burton holds community days where people are invited to fire ceramics in the kiln here.",
+    ],
   },
 ];
 
@@ -259,7 +289,9 @@ for (const hotspot of HOTSPOTS) addHotspotMarker(hotspot);
 const activeAsset = new THREE.Group();
 scene.add(activeAsset);
 
-const gltfLoader = new GLTFLoader();
+// Meshopt decoder: the published site uses meshopt-compressed models (see
+// deploy.sh); plain uncompressed models still load fine through it too.
+const gltfLoader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 const loadedHotspotAssets = new Map(); // assetPath -> gltf.scene, cached after first load
 
 function loadGltf(assetPath) {
@@ -319,6 +351,55 @@ function stopHotspotAudio() {
 
 let isolatedView = false;
 
+// "Back" button, shown only while a hotspot's asset is open on its own.
+const backButton = document.querySelector('#back-button');
+
+// Text panel for hotspots that have `text`. While it's showing, the
+// camera's view is offset so the scan sits centred in the space beside the
+// panel (left of it on wide screens, above it on narrow ones) — this keeps
+// the auto-rotate spinning around the scan's own centre.
+const hotspotText = document.querySelector('#hotspot-text');
+const NARROW_SCREEN = window.matchMedia('(max-width: 700px)');
+
+function applyViewShift() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  if (hotspotText && !hotspotText.hidden) {
+    const rect = hotspotText.getBoundingClientRect();
+    if (NARROW_SCREEN.matches) {
+      camera.setViewOffset(w, h, 0, (h - rect.top) / 2, w, h);
+    } else {
+      camera.setViewOffset(w, h, (w - rect.left) / 2, 0, w, h);
+    }
+  } else {
+    camera.clearViewOffset();
+  }
+  camera.updateProjectionMatrix();
+}
+
+function showHotspotText(paragraphs, title) {
+  if (!hotspotText) return;
+  hotspotText.replaceChildren();
+  if (paragraphs && paragraphs.length) {
+    if (title) {
+      const h = document.createElement('h2');
+      h.textContent = title;
+      hotspotText.appendChild(h);
+    }
+    for (const text of paragraphs) {
+      const p = document.createElement('p');
+      p.textContent = text;
+      hotspotText.appendChild(p);
+    }
+    hotspotText.hidden = false;
+    hotspotText.scrollTop = 0;
+  } else {
+    hotspotText.hidden = true;
+  }
+  applyViewShift();
+}
+NARROW_SCREEN.addEventListener('change', applyViewShift);
+
 // Hides the building and every hotspot marker, drops the background to
 // black, and slowly auto-rotates the camera around the swapped-in asset
 // so it reads as the only thing in the scene.
@@ -329,6 +410,7 @@ function enterIsolatedView(object) {
   controls.autoRotate = true;
   controls.autoRotateSpeed = 1.2; // slow spin
   isolatedView = true;
+  if (backButton) backButton.hidden = false;
 
   const box = new THREE.Box3().setFromObject(object);
   const size = box.getSize(new THREE.Vector3()).length();
@@ -347,6 +429,8 @@ function exitIsolatedView() {
   scene.background.set(0x1a1a1a);
   controls.autoRotate = false;
   isolatedView = false;
+  if (backButton) backButton.hidden = true;
+  showHotspotText(null);
 }
 
 // When a hotspot has more than one asset (see `extraAssetPaths`), each one
@@ -387,9 +471,10 @@ function showHotspotAsset(hotspot) {
       }
     }
 
+    showHotspotText(hotspot.text, hotspot.title);
     enterIsolatedView(activeAsset);
     playHotspotAudio(hotspot.audioPath);
-    showHudMessage(`Loaded ${paths.join(', ')}. Press Escape to go back.`);
+    showHudMessage(`Loaded ${paths.join(', ')}. Press Back or Escape to return.`);
   };
 
   showHudMessage(`Loading ${paths.join(', ')}...`);
@@ -413,6 +498,7 @@ function closeHotspotAsset() {
 window.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') closeHotspotAsset();
 });
+if (backButton) backButton.addEventListener('click', closeHotspotAsset);
 
 // Shown once on load (see body.loading in style.css); closed via the X or
 // Escape, and reopened any time via the (i) button bottom-left.

@@ -26,3 +26,6 @@ dist-ssr
 # Large 3D/audio assets — exceed GitHub's 100MB per-file limit.
 # Kept out of the repo; distribute separately (LFS, cloud storage, etc).
 public/assets
+
+# Meshopt-compressed copies of the models, used only by deploy.sh
+web-assets

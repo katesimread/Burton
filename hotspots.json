@@ -1,33 +1,82 @@
 [
   {
     "id": "hotspot-1",
-    "position": { "x": -0.01, "y": 0.10, "z": 0.73 },
-    "assetPath": "/assets/painting_highRes.glb",
-    "audioPath": "/assets/Audio/weCannotResist.mp3"
+    "position": {
+      "x": -0.01,
+      "y": 0.1,
+      "z": 0.73
+    },
+    "assetPath": "assets/painting_highRes.glb",
+    "audioPath": "assets/Audio/estuary.m4a",
+    "title": "Estuary PUT PAINTING NAME",
+    "text": [
+      "The River Torridge runs through Bideford, starting in Huddisford and entering the sea at Bideford Bay. Rivers are important in addressing the climate crisis; they regulate the carbon cycle, as decaying plants are transported by the river flow into the sea, where they sink to the bottom, therefore disconnecting the carbon stored in them from the atmosphere. This is called carbon sequestration.",
+      "They also have a cooling effect in urban landscapes as the water absorbs heat from the air, and they create wind corridors, which increases air circulation. Many organisms that live in rivers are key to balancing freshwater ecosystems, allowing them to continue to act as carbon sinks.",
+      "The river Torridge is intrinsically linked to Burton’s identity and in telling of the story of trade and commerce in the local area. You can learn lots about the history of Bideford in the Museum, and how it’s tied to the river."
+    ]
   },
   {
     "id": "hotspot-2",
-    "position": { "x": -0.58, "y": -0.54, "z": 0.27 },
-    "assetPath": "/assets/saelia_highRes.glb",
-    "audioPath": "/assets/Audio/uncatena.mp3"
+    "position": {
+      "x": -0.58,
+      "y": -0.54,
+      "z": 0.27
+    },
+    "assetPath": "assets/saelia_highRes.glb",
+    "audioPath": "assets/Audio/saelia.m4a",
+    "title": "Artwork",
+    "text": [
+      "The Burton at Bideford is committed to platforming artists whose work investigates the human connection to the natural world. This is one of Saelia Aparicio’s pieces, from the show A Joyful Parasite. The exhibition takes inspiration from parasitic creatures, but instead of showing them as malignant, reimagines them as symbols through which we can think about co-existence and resilience."
+    ]
   },
   {
     "id": "hotspot-3",
-    "position": { "x": 1.36, "y": -0.50, "z": -1.15 },
-    "assetPath": "/assets/trees_highRes.glb",
-    "audioPath": "/assets/Audio/vampireEmpire.mp3"
+    "position": {
+      "x": 1.36,
+      "y": -0.5,
+      "z": -1.15
+    },
+    "assetPath": "assets/trees_highRes.glb",
+    "audioPath": "assets/Audio/ginko.m4a",
+    "title": "Ginko Tree",
+    "text": [
+      "In 2024, two Tree Care Specialists independently surveyed the Ginkgo biloba following concerns about the spread of disease within the tree and its proximity to and potential to undermine the building’s foundations. Due to the tree having low arboricultural and aesthetic value due to its disease and growth restrictions, removal of the tree was recommended.",
+      "The Burton was adamant that the felled tree was offered a second life, and that the individual logs were offered to local artists, sculptors and woodturners to create a legacy for the tree through the creation of items that could be used or displayed, vases and bowls and birdboxes to support the local birdlife.",
+      "Mark Beckett, known as The Gentleman Woodturner, collected some of the Ginkgo wood and made this beautiful pot, that he gifted to The Burton as a token to remember the tree by. A new Ginkgo tree, donated by local resident Annette Maddison, was planted with the help of the Victoria Park estates team on 3 March 2026, World Wildlife Day 2026. While only small now, one day it will grow and could reach a height of 20-35 meters tall!"
+    ]
   },
   {
     "id": "hotspot-4",
-    "position": { "x": 1.25, "y": -0.51, "z": 0.55 },
-    "assetPath": "/assets/bugHouse_highRes.glb",
-    "audioPath": "/assets/Audio/sideboob.mp3"
+    "position": {
+      "x": 1.25,
+      "y": -0.51,
+      "z": 0.55
+    },
+    "assetPath": "assets/bugHouse_highRes.glb",
+    "audioPath": "assets/Audio/bugHotel.m4a",
+    "title": "The Bug Hotel",
+    "text": [
+      "The bug hotel is a project created by Crafty Kids, a free drop-in family art activity session that runs every Tuesday at The Burton at Bideford. The aim is to involve the pre-school aged children in creating an ecological habitat using recycled collected organic and natural materials where insects can live and thrive.",
+      "The bug hotel has wood and bricks with drilled holes as well as hollow plant stems which are ideal for solitary bees like mason and leaf cutter bees to lay their eggs in; scrunchy card which attracts beetles and spiders; pinecones and stick bundles where ladybirds can lay over winter; card and wood that break downs over time attracting decomposers like wood lice.",
+      "These insects are important in their ecological roles as pollinators, decomposers and in providing a sustainable food chain for larger insects, birds and small mammals that live in the wider Victoria Park."
+    ]
   },
   {
     "id": "hotspot-5",
-    "position": { "x": -0.78, "y": 0.12, "z": -2.00 },
-    "assetPath": "/assets/pots_highRes.glb",
-    "extraAssetPaths": ["/assets/kiln_highRes.glb"],
-    "audioPath": "/assets/Audio/wakeMeUpToDrive.mp3"
+    "position": {
+      "x": -0.78,
+      "y": 0.12,
+      "z": -2.0
+    },
+    "assetPath": "assets/pots_highRes.glb",
+    "extraAssetPaths": [
+      "assets/kiln_highRes.glb"
+    ],
+    "audioPath": "assets/Audio/kiln.m4a",
+    "title": "Wood Fired Bottle Kiln",
+    "text": [
+      "The Burton at Bideford wood fired bottle kiln is a significant structure that connects the gallery’s permanent ceramic collection with the wider historical ceramic trade in Bideford. Wood fired kilns offer a more sustainable way of firing pottery than modern kilns that rely on electricity however, as they take longer to reach temperature and for that temperature to be stable, they can produce less predictable results.",
+      "Some of the pots seen in the ceramics gallery have been fired in this kiln, including these works by Nick Chapman and Svend Bayer. Sometimes, the Burton holds community days where people are invited to fire ceramics in the kiln here."
+    ]
   }
 ]

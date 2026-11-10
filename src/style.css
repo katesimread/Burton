@@ -57,7 +57,9 @@ body.loading #logo-link,
 body.loading #info-panel,
 body.loading #tilt-controls,
 body.loading #zoom-controls,
-body.loading #info-button {
+body.loading #info-button,
+body.loading #back-button,
+body.loading #hotspot-text {
   display: none;
 }
 
@@ -226,3 +228,82 @@ body.loading #loading-indicator {
   accent-color: #ffcc00;
 }
 
+
+/* Only shown while a hotspot's asset is open on its own — see
+   enterIsolatedView() / exitIsolatedView() in main.js. */
+#back-button {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font: 14px/1 ui-monospace, "SF Mono", Menlo, monospace;
+  cursor: pointer;
+  z-index: 10;
+}
+
+#back-button[hidden] {
+  display: none;
+}
+
+#back-button:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+#back-button:active {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Text for a hotspot that has `text` — right side on wide screens, bottom
+   on narrow ones. main.js offsets the camera so the scan sits beside it. */
+#hotspot-text {
+  position: fixed;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  width: min(40vw, 460px);
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  padding: 24px 28px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 12px;
+  color: #000;
+  font: 14px/1.6 ui-monospace, "SF Mono", Menlo, monospace;
+  z-index: 10;
+}
+
+#hotspot-text[hidden] {
+  display: none;
+}
+
+#hotspot-text h2 {
+  margin: 0 0 1em;
+  font-size: inherit; /* same size as the body text */
+  font-weight: bold;
+  text-align: center;
+}
+
+#hotspot-text p {
+  margin: 0 0 1em;
+}
+
+#hotspot-text p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 700px) {
+  #hotspot-text {
+    top: auto;
+    right: 16px;
+    left: 16px;
+    bottom: 168px; /* clear of the tilt + zoom controls */
+    transform: none;
+    width: auto;
+    max-height: 35vh;
+    padding: 16px 18px;
+    font-size: 13px;
+  }
+}
